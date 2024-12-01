@@ -1,0 +1,17 @@
+*/input*
+*/sample*
+main
+main2
+*.hi
+*.bak
+*.o
+*.exe
+*.dll
+*.mod
+ref*
+day05/main.pl
+*.class
+*.kotlin_module
+obj
+bin
+rust-project.json
