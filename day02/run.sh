@@ -1,0 +1,1 @@
+gst main.st < input
