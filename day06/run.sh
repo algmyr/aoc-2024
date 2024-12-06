@@ -1,4 +1,4 @@
-readarray grid < sample
+readarray grid < input
 n=${#grid[@]}
 m=$((${#grid[0]} - 1))
 
@@ -24,7 +24,13 @@ function turn_right() {
 function obstacle_ahead() {
   (( nx = x + dx ))
   (( ny = y + dy ))
-  [ "${grid[$ny]:$nx:1}" == "#" ] || (( nx == bx && ny == by ))
+  if ! (( 0 <= nx && nx < m && 0 <= ny && ny < n )); then
+    return 1
+  else
+    [ "${grid[$ny]:$nx:1}" == "#" ] && return 0
+    (( nx == bx && ny == by )) && return 0
+    return 1
+  fi
 }
 
 limit=70000
@@ -32,7 +38,11 @@ points=()
 while (( 0 <= x && x < m && 0 <= y && y < n )); do
   points+=("$x,$y")
   (( ${#points[@]} > limit )) && break
-  obstacle_ahead && turn_right || (( x += dx, y += dy ))
+  if obstacle_ahead; then
+    turn_right
+  else
+    (( x += dx, y += dy ))
+  fi
 done
 
 if [ -z "$1" ]; then
@@ -43,3 +53,5 @@ if [ -z "$1" ]; then
 else
   (( ${#points[@]} > limit )) && echo loop
 fi
+
+exit 0
