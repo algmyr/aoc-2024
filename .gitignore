@@ -17,3 +17,4 @@ bin
 rust-project.json
 elm-stuff
 index.html
+*.ali
