@@ -1,0 +1,7 @@
+node_modules
+package*
+bin
+.spago
+output
+.purs-repl
+.psci_modules
