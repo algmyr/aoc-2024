@@ -2,17 +2,17 @@ package main
 
 import "fmt"
 
-func rnd(x int) int {
+func rnd(x uint32) uint32 {
   x = x ^ x << 6 & 0xffffff
   x = x ^ x >> 5 & 0xffffff
   x = x ^ x << 11 & 0xffffff
   return x
 }
 
-func readInts() []int {
-  var ints []int
+func readInts() []uint32 {
+  var ints []uint32
   for {
-    var x int
+    var x uint32
     _, err := fmt.Scan(&x)
     if err != nil {
       break
@@ -24,44 +24,48 @@ func readInts() []int {
 
 func main() {
   ints := readInts()
-  p1 := 0
-  for _, x := range ints {
+  p1 := uint64(0)
+  scores := [0xfffff]uint64{}
+  used := [0xfffff]bool{}
+  for _, start := range ints {
+    seq := make([]uint32, 2000)
+    x := start
     for i := 0; i < 2000; i++ {
       x = rnd(x)
+      seq[i] = x
     }
-    p1 += x
-  }
-  fmt.Println("Part 1:", p1)
 
-  scores := make(map[[4]int]int)
-
-  for _, x := range ints {
-    new_scores := make(map[[4]int]int)
-    r2 := -999
-    r1 := -999
-    r0 := -999
-    for i := 0; i < 2000; i++ {
-      new_x := rnd(x)
-      r := new_x%10 - x%10
-      x = new_x
-      if r2 != -999 {
-        if _, ok := new_scores[[4]int{r2, r1, r0, r}]; !ok {
-          new_scores[[4]int{r2, r1, r0, r}] = x%10
+    p1 += uint64(seq[1999])
+    rs := uint32(0xfffff)
+    last := uint32(start)
+    for _, x := range seq {
+      r := 10 + x%10 - last%10
+      rs = (rs << 5 & 0xfffff) | r
+      last = x
+      if rs>>19 == 0 {
+        if !used[rs] {
+          scores[rs] += uint64(x%10)
+          used[rs] = true
         }
       }
-      r2 = r1
-      r1 = r0
-      r0 = r
     }
 
-    for k, v := range new_scores {
-      scores[k] += v
+    // Clear used.
+    last = uint32(start)
+    for _, x := range seq {
+      r := 10 + x%10 - last%10
+      rs = (rs << 5 & 0xfffff) | r
+      last = x
+      used[rs] = false
     }
   }
 
-  best := 0
+  p2 := uint64(0)
   for _, v := range scores {
-    best = max(best, v)
+    if v > p2 {
+      p2 = v
+    }
   }
-  fmt.Println("Part 2:", best)
+  fmt.Println("Part 1:", p1)
+  fmt.Println("Part 2:", p2)
 }
